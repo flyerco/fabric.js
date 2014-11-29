@@ -3,9 +3,7 @@
 
      /**
       * Textbox class, based on IText, allows the user to resize the text rectangle
-      * and wraps lines automatically. Textboxes have their Y scaling locked, the
-      * user can only change width. Height is adjusted automatically based on the
-      * wrapping of lines.
+      * and wraps lines automatically.
       * @class fabric.Textbox
       * @extends fabric.IText
       * @mixes fabric.Observable
@@ -25,6 +23,14 @@
         * @default
         */
        minWidth: 20,
+
+       /**
+        * Minimum height of textbox, in pixels.
+        * @type Number
+        * @default
+        */
+       minHeight: 20,
+
        /**
         * Cached array of text wrapping.
         * @type Array
@@ -61,10 +67,15 @@
         * @returns {Array} Array of lines
         */
        _wrapText: function(ctx, text) {
-         var lines = text.split(this._reNewline), wrapped = [], i;
+         var lines = text.split(this._reNewline), wrapped = [], i, totalHeight = 0;
 
          for (i = 0; i < lines.length; i++) {
-           wrapped = wrapped.concat(this._wrapLine(ctx, lines[i] + '\n'));
+           var limit = this.currentHeight - totalHeight,
+             wrappedLine = this._wrapLine(ctx, lines[i] + '\n', limit);
+
+           wrapped = wrapped.concat(wrappedLine);
+           var textHeight = this._getTextHeight(ctx, wrappedLine);
+           totalHeight += textHeight;
          }
 
          return wrapped;
@@ -76,7 +87,7 @@
         * @returns {Array} Array of line(s) into which the given text is wrapped
         * to.
         */
-       _wrapLine: function(ctx, text) {
+       _wrapLine: function(ctx, text, limit) {
          var maxWidth = this.width, words = text.split(' '),
                  lines = [],
                  line = '';
@@ -116,10 +127,18 @@
              }
              else {
                lines.push(line);
+               if (this._getTextHeight(ctx, lines) > limit) {
+                 lines.pop();
+                 break;
+               }
                line = '';
              }
              if (words.length === 0) {
                lines.push(line.substring(0, line.length - 1));
+               if (this._getTextHeight(ctx, lines) > limit) {
+                 lines.pop();
+                 break;
+               }
              }
            }
          }
@@ -317,6 +336,14 @@
          }
          return this.callSuper('_getHeightOfLine', ctx, lineIndex, textLines);
        },
+
+       /**
+        * @private
+        */
+       _selectionStartIndexOffset: function () {
+         return -2;
+       },
+
        /**
         * Returns object representation of an instance
         * @method toObject
@@ -325,7 +352,8 @@
         */
        toObject: function(propertiesToInclude) {
          return fabric.util.object.extend(this.callSuper('toObject', propertiesToInclude), {
-           minWidth: this.minWidth
+           minWidth: this.minWidth,
+           minHeight: this.minHeight
          });
        }
      });
@@ -347,12 +375,12 @@
        return {
          tl: false,
          tr: false,
-         br: false,
+         br: true,
          bl: false,
-         ml: true,
+         ml: false,
          mt: false,
          mr: true,
-         mb: false,
+         mb: true,
          mtr: true
        };
      };
