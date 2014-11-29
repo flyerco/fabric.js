@@ -23771,8 +23771,6 @@ fabric.util.object.extend(fabric.IText.prototype, /** @lends fabric.IText.protot
 
          var textLines = this._wrapText(ctx, this.text);
 
-         this.set('height', this._getTextHeight(ctx, textLines));
-
          this.clipTo && fabric.util.clipContext(this, ctx);
 
          this._renderTextBackground(ctx, textLines);

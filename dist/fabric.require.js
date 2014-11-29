@@ -11289,7 +11289,6 @@ fabric.util.object.extend(fabric.IText.prototype, {
         _renderViaNative: function(ctx) {
             this._setTextStyles(ctx);
             var textLines = this._wrapText(ctx, this.text);
-            this.set("height", this._getTextHeight(ctx, textLines));
             this.clipTo && fabric.util.clipContext(this, ctx);
             this._renderTextBackground(ctx, textLines);
             this._translateForTextAlign(ctx);
