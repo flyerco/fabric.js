@@ -1,5 +1,5 @@
 var fabric = fabric || {
-    version: "1.4.12"
+    version: "1.4.13"
 };
 
 if (typeof exports !== "undefined") {
@@ -6039,7 +6039,7 @@ fabric.util.object.extend(fabric.StaticCanvas.prototype, {
         setCoords: function() {
             var strokeWidth = this.strokeWidth, theta = degreesToRadians(this.angle), vpt = this.getViewportTransform(), f = function(p) {
                 return fabric.util.transformPoint(p, vpt);
-            }, w = this.width, h = this.height, capped = this.strokeLineCap === "round" || this.strokeLineCap === "square", vLine = this.type === "line" && this.width === 0, hLine = this.type === "line" && this.height === 0, sLine = vLine || hLine, strokeW = capped && hLine || !sLine, strokeH = capped && vLine || !sLine;
+            }, w = this.width, currentWidth, h = this.height, currentHeight, capped = this.strokeLineCap === "round" || this.strokeLineCap === "square", vLine = this.type === "line" && this.width === 0, hLine = this.type === "line" && this.height === 0, sLine = vLine || hLine, strokeW = capped && hLine || !sLine, strokeH = capped && vLine || !sLine;
             if (vLine) {
                 w = strokeWidth;
             } else if (hLine) {
@@ -6051,21 +6051,12 @@ fabric.util.object.extend(fabric.StaticCanvas.prototype, {
             if (strokeH) {
                 h += h > 0 ? strokeWidth : -strokeWidth;
             }
-            this.currentWidth = w * this.scaleX;
-            this.currentHeight = h * this.scaleY;
-            if (this.currentWidth < 0) {
-                this.currentWidth = Math.abs(this.currentWidth);
+            currentWidth = w * this.scaleX + 2 * this.padding;
+            currentHeight = h * this.scaleY + 2 * this.padding;
+            if (currentWidth < 0) {
+                currentWidth = Math.abs(currentWidth);
             }
-            var _hypotenuse = Math.sqrt(Math.pow(this.currentWidth / 2, 2) + Math.pow(this.currentHeight / 2, 2)), _angle = Math.atan(isFinite(this.currentHeight / this.currentWidth) ? this.currentHeight / this.currentWidth : 0), offsetX = Math.cos(_angle + theta) * _hypotenuse, offsetY = Math.sin(_angle + theta) * _hypotenuse, sinTh = Math.sin(theta), cosTh = Math.cos(theta), coords = this.getCenterPoint(), wh = new fabric.Point(this.currentWidth, this.currentHeight), _tl = new fabric.Point(coords.x - offsetX, coords.y - offsetY), _tr = new fabric.Point(_tl.x + wh.x * cosTh, _tl.y + wh.x * sinTh), _bl = new fabric.Point(_tl.x - wh.y * sinTh, _tl.y + wh.y * cosTh), _mt = new fabric.Point(_tl.x + wh.x / 2 * cosTh, _tl.y + wh.x / 2 * sinTh), tl = f(_tl), tr = f(_tr), br = f(new fabric.Point(_tr.x - wh.y * sinTh, _tr.y + wh.y * cosTh)), bl = f(_bl), ml = f(new fabric.Point(_tl.x - wh.y / 2 * sinTh, _tl.y + wh.y / 2 * cosTh)), mt = f(_mt), mr = f(new fabric.Point(_tr.x - wh.y / 2 * sinTh, _tr.y + wh.y / 2 * cosTh)), mb = f(new fabric.Point(_bl.x + wh.x / 2 * cosTh, _bl.y + wh.x / 2 * sinTh)), mtr = f(new fabric.Point(_mt.x, _mt.y)), padX = Math.cos(_angle + theta) * this.padding * Math.sqrt(2), padY = Math.sin(_angle + theta) * this.padding * Math.sqrt(2);
-            tl = tl.add(new fabric.Point(-padX, -padY));
-            tr = tr.add(new fabric.Point(padY, -padX));
-            br = br.add(new fabric.Point(padX, padY));
-            bl = bl.add(new fabric.Point(-padY, padX));
-            ml = ml.add(new fabric.Point((-padX - padY) / 2, (-padY + padX) / 2));
-            mt = mt.add(new fabric.Point((padY - padX) / 2, -(padY + padX) / 2));
-            mr = mr.add(new fabric.Point((padY + padX) / 2, (padY - padX) / 2));
-            mb = mb.add(new fabric.Point((padX - padY) / 2, (padX + padY) / 2));
-            mtr = mtr.add(new fabric.Point((padY - padX) / 2, -(padY + padX) / 2));
+            var _hypotenuse = Math.sqrt(Math.pow(currentWidth / 2, 2) + Math.pow(currentHeight / 2, 2)), _angle = Math.atan(isFinite(currentHeight / currentWidth) ? currentHeight / currentWidth : 0), offsetX = Math.cos(_angle + theta) * _hypotenuse, offsetY = Math.sin(_angle + theta) * _hypotenuse, sinTh = Math.sin(theta), cosTh = Math.cos(theta), coords = this.getCenterPoint(), wh = new fabric.Point(currentWidth, currentHeight), _tl = new fabric.Point(coords.x - offsetX, coords.y - offsetY), _tr = new fabric.Point(_tl.x + wh.x * cosTh, _tl.y + wh.x * sinTh), _bl = new fabric.Point(_tl.x - wh.y * sinTh, _tl.y + wh.y * cosTh), _mt = new fabric.Point(_tl.x + wh.x / 2 * cosTh, _tl.y + wh.x / 2 * sinTh), tl = f(_tl), tr = f(_tr), br = f(new fabric.Point(_tr.x - wh.y * sinTh, _tr.y + wh.y * cosTh)), bl = f(_bl), ml = f(new fabric.Point(_tl.x - wh.y / 2 * sinTh, _tl.y + wh.y / 2 * cosTh)), mt = f(_mt), mr = f(new fabric.Point(_tr.x - wh.y / 2 * sinTh, _tr.y + wh.y / 2 * cosTh)), mb = f(new fabric.Point(_bl.x + wh.x / 2 * cosTh, _bl.y + wh.x / 2 * sinTh)), mtr = f(new fabric.Point(_mt.x, _mt.y));
             this.oCoords = {
                 tl: tl,
                 tr: tr,
@@ -8354,7 +8345,7 @@ fabric.util.object.extend(fabric.Object.prototype, {
             if (this.isMoving === false && this.resizeFilters.length && this._needsResize()) {
                 this._lastScaleX = this.scaleX;
                 this._lastScaleY = this.scaleY;
-                elementToDraw = this.applyFilters(null, this.resizeFilters, this._filteredEl || this._originalElement, false);
+                elementToDraw = this.applyFilters(null, this.resizeFilters, this._filteredEl || this._originalElement, true);
             } else {
                 elementToDraw = this._element;
             }
