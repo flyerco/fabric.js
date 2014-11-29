@@ -242,7 +242,7 @@ fabric.util.object.extend(fabric.IText.prototype, /** @lends fabric.IText.protot
 
       if (mouseOffset.y < height) {
         return this._getNewSelectionStartFromOffset(
-          mouseOffset, prevWidth, width, charIndex + this._selectionStartIndexOffset()/* + i*/, jlen);
+          mouseOffset, prevWidth, width, charIndex + this._selectionStartIndexOffset(), i, jlen);
       }
     }
 
