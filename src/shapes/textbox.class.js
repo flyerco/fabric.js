@@ -371,12 +371,12 @@
       */
      fabric.Textbox.getTextboxControlVisibility = function() {
        return {
-         tl: false,
-         tr: false,
+         tl: true,
+         tr: true,
          br: true,
-         bl: false,
-         ml: false,
-         mt: false,
+         bl: true,
+         ml: true,
+         mt: true,
          mr: true,
          mb: true,
          mtr: true
