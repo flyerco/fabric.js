@@ -11369,12 +11369,12 @@ fabric.util.object.extend(fabric.IText.prototype, {
     };
     fabric.Textbox.getTextboxControlVisibility = function() {
         return {
-            tl: false,
-            tr: false,
+            tl: true,
+            tr: true,
             br: true,
-            bl: false,
-            ml: false,
-            mt: false,
+            bl: true,
+            ml: true,
+            mt: true,
             mr: true,
             mb: true,
             mtr: true
@@ -11410,7 +11410,7 @@ fabric.util.object.extend(fabric.IText.prototype, {
     fabric.Canvas.prototype._setObjectScale = function(localMouse, transform, lockScalingX, lockScalingY, by, lockScalingFlip) {
         var t = transform.target;
         if (t instanceof fabric.Textbox) {
-            var w = t.width * (localMouse.x / transform.scaleX / (t.width + t.strokeWidth)), h = t.height * (localMouse.y / transform.scaleY / (t.height + t.strokeWidth)), resizeHeight = [ "mb" ].indexOf(t.__corner) !== -1, resizeWidth = [ "mr" ].indexOf(t.__corner) !== -1, resizeBoth = [ "br" ].indexOf(t.__corner) !== -1, sw = Math.abs(t.width * t.scaleX), sh = Math.abs(t.height * t.scaleY);
+            var w = t.width * (localMouse.x / transform.scaleX / (t.width + t.strokeWidth)), h = t.height * (localMouse.y / transform.scaleY / (t.height + t.strokeWidth)), resizeHeight = [ "mt", "mb" ].indexOf(t.__corner) !== -1, resizeWidth = [ "ml", "mr" ].indexOf(t.__corner) !== -1, resizeBoth = [ "tl", "tr", "br", "bl" ].indexOf(t.__corner) !== -1, sw = Math.abs(t.width * t.scaleX), sh = Math.abs(t.height * t.scaleY);
             if ((resizeWidth || resizeBoth) && w >= t.minWidth) {
                 sw = w;
             }
