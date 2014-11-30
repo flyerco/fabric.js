@@ -42,8 +42,8 @@
         resizeHeight = ['mb'].indexOf(t.__corner) !== -1,
         resizeWidth = ['mr'].indexOf(t.__corner) !== -1,
         resizeBoth = ['br'].indexOf(t.__corner) !== -1,
-        sw = t.currentWidth,
-        sh = t.currentHeight;
+        sw = Math.abs(t.width * t.scaleX),
+        sh = Math.abs(t.height * t.scaleY);
 
       if ((resizeWidth || resizeBoth) && w >= t.minWidth) {
         sw = w;
