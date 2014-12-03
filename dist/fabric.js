@@ -23627,15 +23627,10 @@ fabric.util.object.extend(fabric.IText.prototype, /** @lends fabric.IText.protot
         * @returns {Array} Array of lines
         */
        _wrapText: function(ctx, text) {
-         var lines = text.split(this._reNewline), wrapped = [], i, totalHeight = 0;
+         var lines = text.split(this._reNewline), wrapped = [], i;
 
          for (i = 0; i < lines.length; i++) {
-           var limit = this.currentHeight - totalHeight,
-             wrappedLine = this._wrapLine(ctx, lines[i] + '\n', limit);
-
-           wrapped = wrapped.concat(wrappedLine);
-           var textHeight = this._getTextHeight(ctx, wrappedLine);
-           totalHeight += textHeight;
+           wrapped = wrapped.concat(this._wrapLine(ctx, lines[i] + '\n'));
          }
 
          return wrapped;
@@ -23647,7 +23642,7 @@ fabric.util.object.extend(fabric.IText.prototype, /** @lends fabric.IText.protot
         * @returns {Array} Array of line(s) into which the given text is wrapped
         * to.
         */
-       _wrapLine: function(ctx, text, limit) {
+       _wrapLine: function(ctx, text) {
          var maxWidth = this.width, words = text.split(' '),
                  lines = [],
                  line = '';
@@ -23687,18 +23682,10 @@ fabric.util.object.extend(fabric.IText.prototype, /** @lends fabric.IText.protot
              }
              else {
                lines.push(line);
-               if (this._getTextHeight(ctx, lines) > limit) {
-                 lines.pop();
-                 break;
-               }
                line = '';
              }
              if (words.length === 0) {
                lines.push(line.substring(0, line.length - 1));
-               if (this._getTextHeight(ctx, lines) > limit) {
-                 lines.pop();
-                 break;
-               }
              }
            }
          }
@@ -23706,7 +23693,7 @@ fabric.util.object.extend(fabric.IText.prototype, /** @lends fabric.IText.protot
          return lines;
        },
        /**
-        * Gets lines of text to render in the Textbox. This function calculates
+        * Gets lines of text in the Textbox. This function calculates
         * text wrapping on the fly everytime it is called.
         * @param {CanvasRenderingContext2D} ctx The context to use for measurements
         * @param {Boolean} [refreshCache] If true, text wrapping is calculated and cached even if it was previously cache.
@@ -23716,7 +23703,7 @@ fabric.util.object.extend(fabric.IText.prototype, /** @lends fabric.IText.protot
 
          var lines = this._getCachedTextLines();
          if (lines !== null && refreshCache !== true) {
-           return lines;
+           return this._getLinesToRender(ctx, lines);
          }
 
          ctx = ctx || this.ctx;
@@ -23728,7 +23715,31 @@ fabric.util.object.extend(fabric.IText.prototype, /** @lends fabric.IText.protot
 
          ctx.restore();
          this._cacheTextLines(lines);
-         return lines;
+         return this._getLinesToRender(ctx, lines);
+       },
+       /**
+        * Gets lines of text to render in the Textbox. Lines with offset higher
+        * than the Textbox height are not rendered.
+        * @param {CanvasRenderingContext2D} ctx The context to use for measurements
+        * @param {Array} textLines Array of lines in the Textbox.
+        * @returns {Array} Array of lines to render in the Textbox.
+        */
+       _getLinesToRender: function (ctx, textLines) {
+         var linesToRender = [],
+           lineHeights = 0;
+
+         for (var i = 0, len = textLines.length; i < len; i++) {
+           var heightOfLine = this._getHeightOfLine(ctx, i, textLines);
+           lineHeights += heightOfLine;
+
+           if (this.height < lineHeights) {
+             break;
+           }
+
+           linesToRender.push(textLines[i]);
+         }
+
+         return linesToRender;
        },
        /**
         * Sets specified property to a specified value. Overrides super class'
@@ -23769,7 +23780,7 @@ fabric.util.object.extend(fabric.IText.prototype, /** @lends fabric.IText.protot
 
          this._setTextStyles(ctx);
 
-         var textLines = this._wrapText(ctx, this.text);
+         var textLines = this._getLinesToRender(ctx, this._wrapText(ctx, this.text));
 
          this.clipTo && fabric.util.clipContext(this, ctx);
 
@@ -24007,10 +24018,6 @@ fabric.util.object.extend(fabric.IText.prototype, /** @lends fabric.IText.protot
       }
       t.set('width', sw);
       t.set('height', sh);
-
-      t.setClipTo(function (ctx) {
-        ctx.rect(-sw / 2, -sh / 2, sw, sh);
-      });
     }
     else {
       setObjectScaleOverridden.call(fabric.Canvas.prototype, localMouse, transform,
