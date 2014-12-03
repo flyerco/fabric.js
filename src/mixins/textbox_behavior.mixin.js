@@ -53,10 +53,6 @@
       }
       t.set('width', sw);
       t.set('height', sh);
-
-      t.setClipTo(function (ctx) {
-        ctx.rect(-sw / 2, -sh / 2, sw, sh);
-      });
     }
     else {
       setObjectScaleOverridden.call(fabric.Canvas.prototype, localMouse, transform,
