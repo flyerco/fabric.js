@@ -23967,33 +23967,6 @@ fabric.util.object.extend(fabric.IText.prototype, /** @lends fabric.IText.protot
 (function() {
 
   /**
-   * Normalize browsers measureText method.
-   * On Safari and maybe other browsers, measureText gives a different value.
-   */
-  var measureTextCache = {};
-  CanvasRenderingContext2D.prototype.originalMeasureText = CanvasRenderingContext2D.prototype.measureText;
-  CanvasRenderingContext2D.prototype.measureText = function (t) {
-    var w = 0, obj = {};
-    if (typeof measureTextCache[this.font] === 'undefined') {
-      measureTextCache[this.font] = {};
-    }
-    else {
-      obj = measureTextCache[this.font];
-    }
-    for (var i = 0; i < t.length; i++) {
-      if (typeof obj[t[i]] !== 'undefined') {
-        w += obj[t[i]];
-      }
-      else {
-        obj[t[i]] = this.originalMeasureText(t[i]).width;
-        w += obj[t[i]];
-      }
-    }
-    measureTextCache[this.font] = obj;
-    return { width: w };
-  };
-
-  /**
    * Override _setObjectScale and add Textbox specific resizing behavior. Resizing
    * a Textbox doesn't scale text, it only changes width and makes text wrap automatically.
    */

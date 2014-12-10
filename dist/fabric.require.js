@@ -11386,28 +11386,6 @@ fabric.util.object.extend(fabric.IText.prototype, {
 })();
 
 (function() {
-    var measureTextCache = {};
-    CanvasRenderingContext2D.prototype.originalMeasureText = CanvasRenderingContext2D.prototype.measureText;
-    CanvasRenderingContext2D.prototype.measureText = function(t) {
-        var w = 0, obj = {};
-        if (typeof measureTextCache[this.font] === "undefined") {
-            measureTextCache[this.font] = {};
-        } else {
-            obj = measureTextCache[this.font];
-        }
-        for (var i = 0; i < t.length; i++) {
-            if (typeof obj[t[i]] !== "undefined") {
-                w += obj[t[i]];
-            } else {
-                obj[t[i]] = this.originalMeasureText(t[i]).width;
-                w += obj[t[i]];
-            }
-        }
-        measureTextCache[this.font] = obj;
-        return {
-            width: w
-        };
-    };
     var setObjectScaleOverridden = fabric.Canvas.prototype._setObjectScale;
     fabric.Canvas.prototype._setObjectScale = function(localMouse, transform, lockScalingX, lockScalingY, by, lockScalingFlip) {
         var t = transform.target;
