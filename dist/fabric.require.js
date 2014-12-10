@@ -11211,13 +11211,14 @@ fabric.util.object.extend(fabric.IText.prototype, {
             });
             this.setControlsVisibility(fabric.Textbox.getTextboxControlVisibility());
             this._dimensionAffectingProps.width = true;
+            this._dimensionAffectingProps.height = true;
         },
         _wrapText: function(ctx, text) {
             var lines = text.split(this._reNewline), wrapped = [], i;
             for (i = 0; i < lines.length; i++) {
                 wrapped = wrapped.concat(this._wrapLine(ctx, lines[i] + "\n"));
             }
-            return wrapped;
+            return this._getLinesToRender(ctx, wrapped);
         },
         _wrapLine: function(ctx, text) {
             var maxWidth = this.width, words = text.split(" "), lines = [], line = "";
@@ -11253,7 +11254,7 @@ fabric.util.object.extend(fabric.IText.prototype, {
         _getTextLines: function(ctx, refreshCache) {
             var lines = this._getCachedTextLines();
             if (lines !== null && refreshCache !== true) {
-                return this._getLinesToRender(ctx, lines);
+                return lines;
             }
             ctx = ctx || this.ctx;
             ctx.save();
@@ -11261,7 +11262,7 @@ fabric.util.object.extend(fabric.IText.prototype, {
             lines = this._wrapText(ctx, this.text);
             ctx.restore();
             this._cacheTextLines(lines);
-            return this._getLinesToRender(ctx, lines);
+            return lines;
         },
         _getLinesToRender: function(ctx, textLines) {
             var linesToRender = [], lineHeights = 0;
@@ -11289,7 +11290,7 @@ fabric.util.object.extend(fabric.IText.prototype, {
         },
         _renderViaNative: function(ctx) {
             this._setTextStyles(ctx);
-            var textLines = this._getLinesToRender(ctx, this._wrapText(ctx, this.text));
+            var textLines = this._wrapText(ctx, this.text);
             this.clipTo && fabric.util.clipContext(this, ctx);
             this._renderTextBackground(ctx, textLines);
             this._translateForTextAlign(ctx);

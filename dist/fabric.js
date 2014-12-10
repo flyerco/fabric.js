@@ -23616,6 +23616,7 @@ fabric.util.object.extend(fabric.IText.prototype, /** @lends fabric.IText.protot
 
          // add width to this list of props that effect line wrapping.
          this._dimensionAffectingProps.width = true;
+         this._dimensionAffectingProps.height = true;
        },
        /**
         * Wraps text using the 'width' property of Textbox. First this function
@@ -23633,7 +23634,7 @@ fabric.util.object.extend(fabric.IText.prototype, /** @lends fabric.IText.protot
            wrapped = wrapped.concat(this._wrapLine(ctx, lines[i] + '\n'));
          }
 
-         return wrapped;
+         return this._getLinesToRender(ctx, wrapped);
        },
        /**
         * Wraps a line of text using the width of the Textbox and a context.
@@ -23703,7 +23704,7 @@ fabric.util.object.extend(fabric.IText.prototype, /** @lends fabric.IText.protot
 
          var lines = this._getCachedTextLines();
          if (lines !== null && refreshCache !== true) {
-           return this._getLinesToRender(ctx, lines);
+           return lines;
          }
 
          ctx = ctx || this.ctx;
@@ -23715,7 +23716,7 @@ fabric.util.object.extend(fabric.IText.prototype, /** @lends fabric.IText.protot
 
          ctx.restore();
          this._cacheTextLines(lines);
-         return this._getLinesToRender(ctx, lines);
+         return lines;
        },
        /**
         * Gets lines of text to render in the Textbox. Lines with offset higher
@@ -23780,7 +23781,7 @@ fabric.util.object.extend(fabric.IText.prototype, /** @lends fabric.IText.protot
 
          this._setTextStyles(ctx);
 
-         var textLines = this._getLinesToRender(ctx, this._wrapText(ctx, this.text));
+         var textLines = this._wrapText(ctx, this.text);
 
          this.clipTo && fabric.util.clipContext(this, ctx);
 
